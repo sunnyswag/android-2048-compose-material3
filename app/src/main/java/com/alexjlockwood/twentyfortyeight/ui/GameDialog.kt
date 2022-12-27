@@ -1,8 +1,6 @@
 package com.alexjlockwood.twentyfortyeight.ui
 
-import androidx.compose.material.AlertDialog
-import androidx.compose.material.Text
-import androidx.compose.material.TextButton
+import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 
 @Composable

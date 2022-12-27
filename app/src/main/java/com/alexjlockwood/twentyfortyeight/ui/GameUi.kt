@@ -1,32 +1,34 @@
 package com.alexjlockwood.twentyfortyeight.ui
 
+import androidx.compose.foundation.gestures.detectDragGestures
 import androidx.compose.foundation.layout.*
-import androidx.compose.material.*
+import androidx.compose.material3.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.gesture.MinFlingVelocity
-import androidx.compose.ui.gesture.TouchSlop
-import androidx.compose.ui.gesture.dragGestureFilter
-import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.layout.WithConstraints
+import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.layoutId
-import androidx.compose.ui.platform.AmbientDensity
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.alexjlockwood.twentyfortyeight.R
+import androidx.constraintlayout.compose.ChainStyle
+import androidx.constraintlayout.compose.ConstraintLayout
+import androidx.constraintlayout.compose.ConstraintSet
 import com.alexjlockwood.twentyfortyeight.domain.Direction
 import com.alexjlockwood.twentyfortyeight.domain.GridTileMovement
+import com.alexjlockwood.twentyfortyeight.R
+import kotlin.math.sqrt
 
 /**
  * Renders the 2048 game's home screen UI.
  */
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun GameUi(
+    modifier: Modifier = Modifier,
     gridTileMovements: List<GridTileMovement>,
     currentScore: Int,
     bestScore: Int,
@@ -35,30 +37,53 @@ fun GameUi(
     onNewGameRequested: () -> Unit,
     onSwipeListener: (direction: Direction) -> Unit,
 ) {
+    var swipeAngle by remember { mutableStateOf(0f) }
     var shouldShowNewGameDialog by remember { mutableStateOf(false) }
     Scaffold(
         topBar = {
             TopAppBar(
                 title = { Text(stringResource(R.string.app_name)) },
-                contentColor = Color.White,
-                backgroundColor = MaterialTheme.colors.primaryVariant,
+                modifier = modifier,
                 actions = {
-                    IconButton(onClick = { shouldShowNewGameDialog = true }) { Icon(Icons.Filled.Add) }
+                    IconButton(onClick = { shouldShowNewGameDialog = true }) {
+                        Icon(Icons.Filled.Add, contentDescription = "")
+                    }
                 }
             )
         }
-    ) {
-        val dragObserver = with(AmbientDensity.current) {
-            SwipeDragObserver(TouchSlop.toPx(), MinFlingVelocity.toPx(), onSwipeListener)
-        }
-        WithConstraints {
+    ) { innerPadding ->
+        BoxWithConstraints(
+            modifier = modifier
+                .padding(innerPadding)
+                .fillMaxSize()
+                .pointerInput(Unit) {
+                    detectDragGestures(
+                        onDrag = { change, dragAmount ->
+                            change.consume()
+                            swipeAngle = atan2(dragAmount.x, -(dragAmount.y))
+                        },
+                        onDragEnd = {
+                            onSwipeListener(
+                                when {
+                                    45 <= swipeAngle && swipeAngle < 135 -> Direction.NORTH
+                                    135 <= swipeAngle && swipeAngle < 225 -> Direction.WEST
+                                    225 <= swipeAngle && swipeAngle < 315 -> Direction.SOUTH
+                                    else -> Direction.EAST
+                                }
+                            )
+                        }
+                    )
+                }
+        ) {
             val isPortrait = maxWidth < maxHeight
             ConstraintLayout(
-                constraintSet = buildConstraints(isPortrait),
-                modifier = Modifier.fillMaxSize().dragGestureFilter(dragObserver),
+                constraintSet = buildConstraints(isPortrait)
             ) {
                 GameGrid(
-                    modifier = Modifier.aspectRatio(1f).padding(16.dp).layoutId("gameGrid"),
+                    modifier = modifier
+                        .aspectRatio(1f)
+                        .padding(16.dp)
+                        .layoutId("gameGrid"),
                     gridTileMovements = gridTileMovements,
                     moveCount = moveCount,
                 )
@@ -158,4 +183,12 @@ private fun buildConstraints(isPortrait: Boolean): ConstraintSet {
             createHorizontalChain(gameGrid, bestScoreLabel, chainStyle = ChainStyle.Packed)
         }
     }
+}
+
+private fun atan2(x: Float, y: Float): Float {
+    var degrees = Math.toDegrees(kotlin.math.atan2(y, x).toDouble()).toFloat()
+    if (degrees < 0) {
+        degrees += 360
+    }
+    return degrees
 }

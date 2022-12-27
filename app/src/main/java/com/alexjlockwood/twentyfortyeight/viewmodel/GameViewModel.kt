@@ -7,7 +7,7 @@ import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import com.alexjlockwood.twentyfortyeight.domain.*
 import com.alexjlockwood.twentyfortyeight.repository.GameRepository
-import com.google.android.material.math.MathUtils.floorMod
+import java.lang.Math.floorMod
 import kotlin.math.max
 
 const val GRID_SIZE = 4
@@ -68,7 +68,9 @@ class GameViewModel(private val gameRepository: GameRepository) : ViewModel() {
         }
 
         // Increment the score.
-        val scoreIncrement = updatedGridTileMovements.filter { it.fromGridTile == null }.sumBy { it.toGridTile.tile.num }
+        val scoreIncrement = updatedGridTileMovements
+            .filter { it.fromGridTile == null }
+            .sumOf { it.toGridTile.tile.num }
         currentScore += scoreIncrement
         bestScore = max(bestScore, currentScore)
 
