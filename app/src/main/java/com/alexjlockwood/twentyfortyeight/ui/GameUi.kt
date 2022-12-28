@@ -54,13 +54,12 @@ fun GameUi(
     ) {
         val isPortrait = maxWidth < maxHeight
         ConstraintLayout {
-            val (gameGrid, currentScoreText, currentScoreLabel,
-                bestScoreText, bestScoreLabel) = createRefs()
+            val (gameGridRef, currentScoreRef, bestScoreRef) = createRefs()
             GameGrid(
                 modifier = Modifier
                     .aspectRatio(1f)
                     .padding(16.dp)
-                    .constrainAs(gameGrid) {
+                    .constrainAs(gameGridRef) {
                         if (isPortrait) {
                             start.linkTo(parent.start)
                             top.linkTo(parent.top)
@@ -75,75 +74,56 @@ fun GameUi(
                 gridTileMovements = gridTileMovements,
                 moveCount = moveCount,
             )
-            TextLabel(
-                modifier = Modifier
-                    .constrainAs(currentScoreText) {
-                        if (isPortrait) {
-                            start.linkTo(gameGrid.start, 16.dp)
-                            top.linkTo(gameGrid.bottom)
-                        }
-                        else {
-                            start.linkTo(currentScoreLabel.start)
-                            bottom.linkTo(currentScoreLabel.top)
-                        }
-                    },
-                text = "$currentScore",
-                fontSize = 36.sp
-            )
-            TextLabel(
-                modifier = Modifier
-                    .constrainAs(currentScoreLabel) {
-                        if (isPortrait) {
-                            start.linkTo(currentScoreText.start)
-                            top.linkTo(currentScoreText.bottom)
-                        }
-                        else {
-                            start.linkTo(bestScoreText.start)
-                            bottom.linkTo(bestScoreText.top)
-                        }
-                    },
-                text = stringResource(R.string.msg_score),
-                fontSize = 18.sp
-            )
-            TextLabel(
-                modifier = Modifier
-                    .constrainAs(bestScoreText) {
-                        if (isPortrait) {
-                            end.linkTo(gameGrid.end, 16.dp)
-                            top.linkTo(gameGrid.bottom)
-                        }
-                        else {
-                            start.linkTo(bestScoreLabel.start)
-                            bottom.linkTo(bestScoreLabel.top)
-                        }
-                    },
-                text = "$bestScore",
-                fontSize = 36.sp
-            )
-            TextLabel(
-                modifier = Modifier
-                    .constrainAs(bestScoreLabel) {
-                        if (isPortrait) {
-                            end.linkTo(bestScoreText.end)
-                            top.linkTo(bestScoreText.bottom)
-                        }
-                        else {
-                            start.linkTo(gameGrid.end)
-                            bottom.linkTo(gameGrid.bottom, 16.dp)
-                        }
-                    },
-                text = stringResource(R.string.msg_best_score),
-                fontSize = 18.sp
-            )
+            Column(
+                modifier = Modifier.constrainAs(currentScoreRef) {
+                    if (isPortrait) {
+                        start.linkTo(gameGridRef.start, 16.dp)
+                        top.linkTo(gameGridRef.bottom)
+                    }
+                    else {
+                        start.linkTo(bestScoreRef.start)
+                        bottom.linkTo(bestScoreRef.top)
+                    }
+                }
+            ) {
+                TextLabel(
+                    text = "$currentScore",
+                    fontSize = 36.sp
+                )
+                TextLabel(
+                    text = stringResource(R.string.msg_score),
+                    fontSize = 18.sp
+                )
+            }
+            Column(
+                modifier = Modifier.constrainAs(bestScoreRef) {
+                    if (isPortrait) {
+                        end.linkTo(gameGridRef.end, 16.dp)
+                        top.linkTo(gameGridRef.bottom)
+                    }
+                    else {
+                        start.linkTo(gameGridRef.end)
+                        bottom.linkTo(gameGridRef.bottom, 16.dp)
+                    }
+                }
+            ) {
+                TextLabel(
+                    text = "$bestScore",
+                    fontSize = 36.sp
+                )
+                TextLabel(
+                    text = stringResource(R.string.msg_best_score),
+                    fontSize = 18.sp
+                )
+            }
         }
     }
 }
 
 @Composable
-private fun TextLabel(modifier: Modifier, text: String, fontSize: TextUnit) {
+private fun TextLabel(text: String, fontSize: TextUnit) {
     Text(
         text = text,
-        modifier = modifier,
         fontSize = fontSize,
         fontWeight = FontWeight.Light,
     )
