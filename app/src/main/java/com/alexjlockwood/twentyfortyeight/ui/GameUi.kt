@@ -20,7 +20,6 @@ import androidx.constraintlayout.compose.ConstraintSet
 import com.alexjlockwood.twentyfortyeight.domain.Direction
 import com.alexjlockwood.twentyfortyeight.domain.GridTileMovement
 import com.alexjlockwood.twentyfortyeight.R
-import kotlin.math.sqrt
 
 /**
  * Renders the 2048 game's home screen UI.
