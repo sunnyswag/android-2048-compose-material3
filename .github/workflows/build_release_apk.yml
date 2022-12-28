@@ -4,41 +4,14 @@ on:
   workflow_dispatch:
   workflow_call:
   push:
-    branches:
-      - 'master'
-      - 'dev'
-      - '*-dev'
-      - 'dev-*'
     paths-ignore:
-      - '.idea/**'
-      - '.gitattributes'
-      - '.github/**.json'
-      - '.gitignore'
-      - '.gitmodules'
       - '**.md'
       - 'LICENSE'
-      - 'NOTICE'
   pull_request:
-    branches:
-      - 'master'
-      - 'dev'
-      - '*-dev'
-      - 'dev-*'
-    paths-ignore:
-      - '.idea/**'
-      - '.gitattributes'
-      - '.github/**.json'
-      - '.gitignore'
-      - '.gitmodules'
-      - '**.md'
-      - 'LICENSE'
-      - 'NOTICE'
 
 jobs:
   build:
-
     runs-on: ubuntu-latest
-
     steps:
     - uses: actions/checkout@v3
     - name: set up JDK 11
@@ -47,20 +20,19 @@ jobs:
         java-version: '11'
         distribution: 'temurin'
         cache: gradle
-
     - name: Build with Gradle
-      env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      run: ./gradlew assembleRelease
+      run: ./gradlew assembleRelease --no-daemon
     - name: Sign APK
-      id: sign_apk
+      id: sign_app
       uses: r0adkll/sign-android-release@v1
       with:
-        releaseDirectory: app/build/outputs/apk/release/
+        releaseDirectory: app/build/outputs/apk/release
         signingKeyBase64: ${{ secrets.SIGNING_KEYSTORE }}
         keyStorePassword: ${{ secrets.SIGNING_KEYSTORE_PASSWORD }}
         alias: ${{ secrets.SIGNING_KEY_ALIAS }}
         keyPassword: ${{ secrets.SIGNING_KEY_PASSWORD }}
+      env:
+        BUILD_TOOLS_VERSION: "33.0.1"
     - name: Upload APK
       uses: actions/upload-artifact@v2
       with:
