@@ -32,25 +32,24 @@ fun GameUi(
 ) {
     var swipeAngle by remember { mutableStateOf(0f) }
     BoxWithConstraints(
-        modifier = modifier
-            .pointerInput(Unit) {
-                detectDragGestures(
-                    onDrag = { change, dragAmount ->
-                        change.consume()
-                        swipeAngle = uatan2(dragAmount.x, -(dragAmount.y))
-                    },
-                    onDragEnd = {
-                        onSwipeListener(
-                            when {
-                                45 <= swipeAngle && swipeAngle < 135 -> Direction.NORTH
-                                135 <= swipeAngle && swipeAngle < 225 -> Direction.WEST
-                                225 <= swipeAngle && swipeAngle < 315 -> Direction.SOUTH
-                                else -> Direction.EAST
-                            }
-                        )
-                    }
-                )
-            }
+        modifier = modifier.pointerInput(Unit) {
+            detectDragGestures(
+                onDrag = { change, dragAmount ->
+                    change.consume()
+                    swipeAngle = uatan2(dragAmount.x, -(dragAmount.y))
+                },
+                onDragEnd = {
+                    onSwipeListener(
+                        when {
+                            45 <= swipeAngle && swipeAngle < 135 -> Direction.NORTH
+                            135 <= swipeAngle && swipeAngle < 225 -> Direction.WEST
+                            225 <= swipeAngle && swipeAngle < 315 -> Direction.SOUTH
+                            else -> Direction.EAST
+                        }
+                    )
+                }
+            )
+        }
     ) {
         val isPortrait = maxWidth < maxHeight
         ConstraintLayout {
@@ -74,7 +73,7 @@ fun GameUi(
                 gridTileMovements = gridTileMovements,
                 moveCount = moveCount,
             )
-            Column(
+            ScoreBox(
                 modifier = Modifier.constrainAs(currentScoreRef) {
                     if (isPortrait) {
                         start.linkTo(gameGridRef.start, 16.dp)
@@ -84,18 +83,11 @@ fun GameUi(
                         start.linkTo(bestScoreRef.start)
                         bottom.linkTo(bestScoreRef.top)
                     }
-                }
-            ) {
-                TextLabel(
-                    text = "$currentScore",
-                    fontSize = 36.sp
-                )
-                TextLabel(
-                    text = stringResource(R.string.msg_score),
-                    fontSize = 18.sp
-                )
-            }
-            Column(
+                },
+                text = "$currentScore",
+                label = stringResource(R.string.msg_score)
+            )
+            ScoreBox(
                 modifier = Modifier.constrainAs(bestScoreRef) {
                     if (isPortrait) {
                         end.linkTo(gameGridRef.end, 16.dp)
@@ -105,32 +97,29 @@ fun GameUi(
                         start.linkTo(gameGridRef.end)
                         bottom.linkTo(gameGridRef.bottom, 16.dp)
                     }
-                }
-            ) {
-                TextLabel(
-                    text = "$bestScore",
-                    fontSize = 36.sp
-                )
-                TextLabel(
-                    text = stringResource(R.string.msg_best_score),
-                    fontSize = 18.sp
-                )
-            }
+                },
+                text = "$bestScore",
+                label = stringResource(R.string.msg_best_score)
+            )
         }
     }
 }
 
 @Composable
-private fun TextLabel(text: String, fontSize: TextUnit) {
-    Text(
-        text = text,
-        fontSize = fontSize,
-        fontWeight = FontWeight.Light,
-    )
+private fun ScoreBox(
+    modifier: Modifier = Modifier,
+    text: String,
+    label: String,
+    minFontSize: TextUnit = 18.sp
+) {
+    Column(modifier) {
+        Text(text = text, fontSize = minFontSize * 2, fontWeight = FontWeight.Light)
+        Text(text = label, fontSize = minFontSize, fontWeight = FontWeight.Light)
+    }
 }
 
 private fun uatan2(x: Float, y: Float): Float =
     toDegrees(atan2(y, x).toDouble()).toFloat().let { deg ->
         if (deg < 0) { deg + 360 }
-        else deg
+        else { deg }
     }
