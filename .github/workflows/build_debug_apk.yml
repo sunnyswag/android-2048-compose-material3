@@ -23,7 +23,7 @@ jobs:
     - name: Build with Gradle
       run: ./gradlew assembleDebug --no-daemon
     - name: Upload APK
-      uses: actions/upload-artifact@v2
+      uses: actions/upload-artifact@v3
       with:
         name: Debug APK
         path: app/build/outputs/apk/debug/*.apk
