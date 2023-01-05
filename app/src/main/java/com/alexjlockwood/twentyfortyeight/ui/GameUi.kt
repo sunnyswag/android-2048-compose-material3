@@ -1,10 +1,14 @@
 package com.alexjlockwood.twentyfortyeight.ui
 
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.gestures.detectDragGestures
 import androidx.compose.foundation.layout.*
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
@@ -29,6 +33,8 @@ fun GameUi(
     bestScore: Int,
     moveCount: Int,
     onSwipeListener: (direction: Direction) -> Unit,
+    onAddButtonClick: () -> Unit,
+    onBackButtonClick: () -> Unit,
 ) {
     var swipeAngle by remember { mutableStateOf(0f) }
     BoxWithConstraints(
@@ -54,6 +60,48 @@ fun GameUi(
         val isPortrait = maxWidth < maxHeight
         ConstraintLayout {
             val (gameGridRef, currentScoreRef, bestScoreRef) = createRefs()
+            val (titleRef, actionAddRef, actionBackRef) = createRefs()
+            TitleBox(
+                modifier = Modifier
+                    .padding(16.dp)
+                    .constrainAs(titleRef) {
+                        if (isPortrait) {
+                            start.linkTo(parent.start)
+                            top.linkTo(parent.top)
+                        } else {
+                            start.linkTo(parent.start)
+                            top.linkTo(parent.top)
+                        }
+                    }
+            )
+            ActionBox(
+                modifier = Modifier
+                    .padding(16.dp)
+                    .constrainAs(actionAddRef) {
+                        if (isPortrait) {
+                            end.linkTo(parent.end)
+                            bottom.linkTo(titleRef.bottom)
+                        } else {
+                            bottom.linkTo(parent.bottom)
+                            end.linkTo(titleRef.end)
+                        }
+                    },
+                imageVector = Icons.Filled.Add,
+            ) { onAddButtonClick() }
+            ActionBox(
+                modifier = Modifier
+                    .padding(16.dp)
+                    .constrainAs(actionBackRef) {
+                        if (isPortrait) {
+                            end.linkTo(actionAddRef.start)
+                            bottom.linkTo(titleRef.bottom)
+                        } else {
+                            bottom.linkTo(actionAddRef.top)
+                            end.linkTo(titleRef.end)
+                        }
+                    },
+                imageVector = Icons.Filled.ArrowBack,
+            ) { onBackButtonClick() }
             GameGrid(
                 modifier = Modifier
                     .aspectRatio(1f)
@@ -61,43 +109,47 @@ fun GameUi(
                     .constrainAs(gameGridRef) {
                         if (isPortrait) {
                             start.linkTo(parent.start)
-                            top.linkTo(parent.top)
+                            top.linkTo(titleRef.bottom)
+                            bottom.linkTo(bestScoreRef.top)
                             end.linkTo(parent.end)
-                        }
-                        else {
-                            start.linkTo(parent.start)
+                        } else {
+                            start.linkTo(titleRef.end)
                             top.linkTo(parent.top)
                             bottom.linkTo(parent.bottom)
+                            end.linkTo(bestScoreRef.start)
                         }
                     },
                 gridTileMovements = gridTileMovements,
                 moveCount = moveCount,
             )
             ScoreBox(
-                modifier = Modifier.constrainAs(currentScoreRef) {
-                    if (isPortrait) {
-                        start.linkTo(gameGridRef.start, 16.dp)
-                        top.linkTo(gameGridRef.bottom)
-                    }
-                    else {
-                        start.linkTo(bestScoreRef.start)
-                        bottom.linkTo(bestScoreRef.top)
-                    }
-                },
+                modifier = Modifier
+                    .padding(16.dp)
+                    .constrainAs(currentScoreRef) {
+                        if (isPortrait) {
+                            end.linkTo(bestScoreRef.start)
+                            top.linkTo(bestScoreRef.top)
+                        }
+                        else {
+                            start.linkTo(bestScoreRef.start)
+                            bottom.linkTo(bestScoreRef.top)
+                        }
+                    },
                 text = "$currentScore",
                 label = stringResource(R.string.msg_score)
             )
             ScoreBox(
-                modifier = Modifier.constrainAs(bestScoreRef) {
-                    if (isPortrait) {
-                        end.linkTo(gameGridRef.end, 16.dp)
-                        top.linkTo(gameGridRef.bottom)
-                    }
-                    else {
-                        start.linkTo(gameGridRef.end)
-                        bottom.linkTo(gameGridRef.bottom, 16.dp)
-                    }
-                },
+                modifier = Modifier
+                    .padding(16.dp)
+                    .constrainAs(bestScoreRef) {
+                        if (isPortrait) {
+                            end.linkTo(parent.end)
+                            top.linkTo(parent.bottom)
+                        } else {
+                            end.linkTo(parent.end)
+                            bottom.linkTo(parent.bottom)
+                        }
+                    },
                 text = "$bestScore",
                 label = stringResource(R.string.msg_best_score)
             )
@@ -106,15 +158,57 @@ fun GameUi(
 }
 
 @Composable
+private fun TitleBox(
+    modifier: Modifier = Modifier,
+    text: String = stringResource(R.string.app_name),
+    FontSize: TextUnit = 32.sp,
+) {
+    Column(modifier.padding(16.dp)) {
+        Text(
+            text = text,
+            fontSize = FontSize,
+            fontWeight = FontWeight.Light,
+            color = MaterialTheme.colorScheme.secondary
+        )
+    }
+}
+
+@Composable
+private fun ActionBox(
+    modifier: Modifier = Modifier,
+    imageVector: ImageVector,
+    onClick: () -> Unit,
+) {
+    Card(modifier.clickable { onClick() }) {
+        Icon(
+            modifier = Modifier.padding(16.dp),
+            imageVector = imageVector,
+            tint = MaterialTheme.colorScheme.secondary,
+            contentDescription = ""
+        )
+    }
+}
+
+@Composable
 private fun ScoreBox(
     modifier: Modifier = Modifier,
     text: String,
     label: String,
-    minFontSize: TextUnit = 18.sp
+    minFontSize: TextUnit = 16.sp
 ) {
-    Column(modifier) {
-        Text(text = text, fontSize = minFontSize * 2, fontWeight = FontWeight.Light)
-        Text(text = label, fontSize = minFontSize, fontWeight = FontWeight.Light)
+    Column(modifier.padding(16.dp)) {
+        Text(
+            text = text,
+            fontSize = minFontSize * 2,
+            fontWeight = FontWeight.Light,
+            color = MaterialTheme.colorScheme.secondary
+        )
+        Text(
+            text = label,
+            fontSize = minFontSize,
+            fontWeight = FontWeight.Light,
+            color = MaterialTheme.colorScheme.secondary
+        )
     }
 }
 

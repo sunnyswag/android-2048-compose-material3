@@ -43,7 +43,7 @@ fun GameGrid(
         val tileSizePx = ((min(width, height) - tileMarginPx * (GRID_SIZE - 1)) / GRID_SIZE).coerceAtLeast(0f)
         val tileSizeDp = Dp(tileSizePx / LocalDensity.current.density)
         val tileOffsetPx = tileSizePx + tileMarginPx
-        val emptyTileColor = getEmptyTileColor(isSystemInDarkTheme())
+        val emptyTileColor = MaterialTheme.colorScheme.surfaceVariant
         Box(
             modifier = Modifier.drawBehind {
                 // Draw the background empty tiles.
@@ -145,8 +145,4 @@ private fun getTileColor(num: Int, isDarkTheme: Boolean): Color {
         16384 -> Color(if (isDarkTheme) 0xff512da8 else 0xff9933cc)
         else -> Color.Black
     }
-}
-
-private fun getEmptyTileColor(isDarkTheme: Boolean): Color {
-    return Color(if (isDarkTheme) 0xff444444 else 0xffdddddd)
 }

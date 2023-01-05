@@ -37,20 +37,30 @@ class GameViewModel @Inject constructor (
         private set
 
     init {
+        restore()
+    }
+
+    fun restore() {
         val savedGrid = gameRepository.grid
         if (savedGrid == null) {
             startNewGame()
-        } else {
+        }
+        else {
             // Restore a previously saved game.
             grid = savedGrid.map { tiles -> tiles.map { if (it == null) null else Tile(it) } }
             gridTileMovements = savedGrid.flatMapIndexed { row, tiles ->
                 tiles.mapIndexed { col, it ->
-                    if (it == null) null else GridTileMovement.noop(GridTile(Cell(row, col), Tile(it)))
+                    if (it == null) null else GridTileMovement.noop(
+                        GridTile(
+                            Cell(row, col),
+                            Tile(it)
+                        )
+                    )
                 }
             }.filterNotNull()
             currentScore = gameRepository.currentScore
             bestScore = gameRepository.bestScore
-            isGameOver = checkIsGameOver(this.grid)
+            isGameOver = checkIsGameOver(grid)
         }
     }
 
@@ -71,6 +81,8 @@ class GameViewModel @Inject constructor (
             // No tiles were moved.
             return
         }
+        // Save status.
+        gameRepository.saveState(grid, currentScore, bestScore)
 
         // Increment the score.
         val scoreIncrement = updatedGridTileMovements
@@ -88,11 +100,10 @@ class GameViewModel @Inject constructor (
             updatedGridTileMovements.add(addedTileMovement)
         }
 
-        this.grid = updatedGrid
-        this.gridTileMovements = updatedGridTileMovements.sortedWith { a, _ -> if (a.fromGridTile == null) 1 else -1 }
-        this.isGameOver = checkIsGameOver(grid)
-        this.moveCount++
-        this.gameRepository.saveState(this.grid, this.currentScore, this.bestScore)
+        grid = updatedGrid
+        gridTileMovements = updatedGridTileMovements.sortedWith { a, _ -> if (a.fromGridTile == null) 1 else -1 }
+        isGameOver = checkIsGameOver(grid)
+        moveCount++
     }
 }
 

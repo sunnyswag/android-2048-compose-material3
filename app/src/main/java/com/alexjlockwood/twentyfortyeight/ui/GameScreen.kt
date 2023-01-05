@@ -1,9 +1,6 @@
 package com.alexjlockwood.twentyfortyeight.ui
 
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.padding
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Add
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
@@ -12,7 +9,6 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import com.alexjlockwood.twentyfortyeight.R
 import com.alexjlockwood.twentyfortyeight.viewmodel.GameViewModel
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun GameScreen(
     gameViewModel: GameViewModel = hiltViewModel()
@@ -20,25 +16,16 @@ fun GameScreen(
     AppTheme {
         Surface {
             var shouldShowNewGameDialog by remember { mutableStateOf(false) }
-            Scaffold(
-                topBar = {
-                    GameTopAppBar(
-                        title = stringResource(R.string.app_name),
-                        onAddButtonClick = { shouldShowNewGameDialog = true }
-                    )
-                }
-            ) { innerPadding ->
-                GameUi(
-                    modifier = Modifier
-                        .padding(innerPadding)
-                        .fillMaxSize(),
-                    gridTileMovements = gameViewModel.gridTileMovements,
-                    currentScore = gameViewModel.currentScore,
-                    bestScore = gameViewModel.bestScore,
-                    moveCount = gameViewModel.moveCount,
-                    onSwipeListener = { direction -> gameViewModel.move(direction) },
-                )
-            }
+            GameUi(
+                modifier = Modifier.fillMaxSize(),
+                gridTileMovements = gameViewModel.gridTileMovements,
+                currentScore = gameViewModel.currentScore,
+                bestScore = gameViewModel.bestScore,
+                moveCount = gameViewModel.moveCount,
+                onSwipeListener = { direction -> gameViewModel.move(direction) },
+                onAddButtonClick = { shouldShowNewGameDialog = true },
+                onBackButtonClick = { gameViewModel.restore() },
+            )
 
             if (gameViewModel.isGameOver) {
                 GameDialog(
@@ -65,22 +52,4 @@ fun GameScreen(
             }
         }
     }
-}
-
-@OptIn(ExperimentalMaterial3Api::class)
-@Composable
-fun GameTopAppBar(
-    modifier: Modifier = Modifier,
-    title: String,
-    onAddButtonClick: () -> Unit
-) {
-    TopAppBar(
-        title = { Text(title) },
-        modifier = modifier,
-        actions = {
-            IconButton(onClick = { onAddButtonClick() }) {
-                Icon(Icons.Filled.Add, contentDescription = "")
-            }
-        }
-    )
 }
