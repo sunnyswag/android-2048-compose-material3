@@ -12,15 +12,13 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.unit.TextUnit
-import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
+import androidx.compose.ui.unit.*
 import androidx.constraintlayout.compose.ConstraintLayout
+import androidx.constraintlayout.compose.Dimension
 import com.alexjlockwood.twentyfortyeight.R
 import com.alexjlockwood.twentyfortyeight.domain.Direction
 import com.alexjlockwood.twentyfortyeight.domain.GridTileMovement
-import java.lang.Math.toDegrees
-import kotlin.math.atan2
+import kotlin.math.*
 
 /**
  * Renders the 2048 game's home screen UI.
@@ -32,17 +30,18 @@ fun GameUi(
     currentScore: Int,
     bestScore: Int,
     moveCount: Int,
+    isPortrait: Boolean,
     onSwipeListener: (direction: Direction) -> Unit,
     onAddButtonClick: () -> Unit,
     onBackButtonClick: () -> Unit,
 ) {
     var swipeAngle by remember { mutableStateOf(0f) }
-    BoxWithConstraints(
-        modifier = modifier.pointerInput(Unit) {
+    ConstraintLayout(
+        modifier.pointerInput(Unit) {
             detectDragGestures(
                 onDrag = { change, dragAmount ->
                     change.consume()
-                    swipeAngle = uatan2(dragAmount.x, -(dragAmount.y))
+                    swipeAngle = calcDegree(dragAmount.x, -(dragAmount.y))
                 },
                 onDragEnd = {
                     onSwipeListener(
@@ -57,103 +56,102 @@ fun GameUi(
             )
         }
     ) {
-        val isPortrait = maxWidth < maxHeight
-        ConstraintLayout {
-            val (gameGridRef, currentScoreRef, bestScoreRef) = createRefs()
-            val (titleRef, actionAddRef, actionBackRef) = createRefs()
-            TitleBox(
-                modifier = Modifier
-                    .padding(16.dp)
-                    .constrainAs(titleRef) {
-                        if (isPortrait) {
-                            start.linkTo(parent.start)
-                            top.linkTo(parent.top)
-                        } else {
-                            start.linkTo(parent.start)
-                            top.linkTo(parent.top)
-                        }
+        val (titleRef, actionAddRef, actionBackRef) = createRefs()
+        val (gameGridRef, currentScoreRef, bestScoreRef) = createRefs()
+        GameGrid(
+            modifier = Modifier
+                .wrapContentSize()
+                .aspectRatio(1f)
+                .padding(16.dp)
+                .constrainAs(gameGridRef) {
+                    if (isPortrait) {
+                        start.linkTo(parent.start)
+                        end.linkTo(parent.end)
+                        top.linkTo(titleRef.bottom)
+                        bottom.linkTo(bestScoreRef.top)
+                    } else {
+                        start.linkTo(titleRef.end)
+                        end.linkTo(bestScoreRef.start)
+                        top.linkTo(parent.top)
+                        bottom.linkTo(parent.bottom)
                     }
-            )
-            ActionBox(
-                modifier = Modifier
-                    .padding(16.dp)
-                    .constrainAs(actionAddRef) {
-                        if (isPortrait) {
-                            end.linkTo(parent.end)
-                            bottom.linkTo(titleRef.bottom)
-                        } else {
-                            bottom.linkTo(parent.bottom)
-                            end.linkTo(titleRef.end)
-                        }
-                    },
-                imageVector = Icons.Filled.Add,
-            ) { onAddButtonClick() }
-            ActionBox(
-                modifier = Modifier
-                    .padding(16.dp)
-                    .constrainAs(actionBackRef) {
-                        if (isPortrait) {
-                            end.linkTo(actionAddRef.start)
-                            bottom.linkTo(titleRef.bottom)
-                        } else {
-                            bottom.linkTo(actionAddRef.top)
-                            end.linkTo(titleRef.end)
-                        }
-                    },
-                imageVector = Icons.Filled.ArrowBack,
-            ) { onBackButtonClick() }
-            GameGrid(
-                modifier = Modifier
-                    .aspectRatio(1f)
-                    .padding(16.dp)
-                    .constrainAs(gameGridRef) {
-                        if (isPortrait) {
-                            start.linkTo(parent.start)
-                            top.linkTo(titleRef.bottom)
-                            bottom.linkTo(bestScoreRef.top)
-                            end.linkTo(parent.end)
-                        } else {
-                            start.linkTo(titleRef.end)
-                            top.linkTo(parent.top)
-                            bottom.linkTo(parent.bottom)
-                            end.linkTo(bestScoreRef.start)
-                        }
-                    },
-                gridTileMovements = gridTileMovements,
-                moveCount = moveCount,
-            )
-            ScoreBox(
-                modifier = Modifier
-                    .padding(16.dp)
-                    .constrainAs(currentScoreRef) {
-                        if (isPortrait) {
-                            end.linkTo(bestScoreRef.start)
-                            top.linkTo(bestScoreRef.top)
-                        }
-                        else {
-                            start.linkTo(bestScoreRef.start)
-                            bottom.linkTo(bestScoreRef.top)
-                        }
-                    },
-                text = "$currentScore",
-                label = stringResource(R.string.msg_score)
-            )
-            ScoreBox(
-                modifier = Modifier
-                    .padding(16.dp)
-                    .constrainAs(bestScoreRef) {
-                        if (isPortrait) {
-                            end.linkTo(parent.end)
-                            top.linkTo(parent.bottom)
-                        } else {
-                            end.linkTo(parent.end)
-                            bottom.linkTo(parent.bottom)
-                        }
-                    },
-                text = "$bestScore",
-                label = stringResource(R.string.msg_best_score)
-            )
-        }
+                    width = Dimension.fillToConstraints
+                    height = Dimension.fillToConstraints
+                },
+            gridTileMovements = gridTileMovements,
+            moveCount = moveCount,
+        )
+        TitleBox(
+            modifier = Modifier
+                .padding(16.dp)
+                .constrainAs(titleRef) {
+                    if (isPortrait) {
+                        start.linkTo(parent.start)
+                        top.linkTo(parent.top)
+                    } else {
+                        start.linkTo(parent.start)
+                        top.linkTo(parent.top)
+                    }
+                }
+        )
+        ActionBox(
+            modifier = Modifier
+                .padding(16.dp)
+                .constrainAs(actionAddRef) {
+                    if (isPortrait) {
+                        end.linkTo(parent.end)
+                        bottom.linkTo(titleRef.bottom)
+                    } else {
+                        bottom.linkTo(parent.bottom)
+                        end.linkTo(titleRef.end)
+                    }
+                },
+            imageVector = Icons.Filled.Add,
+        ) { onAddButtonClick() }
+        ActionBox(
+            modifier = Modifier
+                .padding(16.dp)
+                .constrainAs(actionBackRef) {
+                    if (isPortrait) {
+                        end.linkTo(actionAddRef.start)
+                        bottom.linkTo(actionAddRef.bottom)
+                    } else {
+                        bottom.linkTo(actionAddRef.top)
+                        end.linkTo(actionAddRef.end)
+                    }
+                },
+            imageVector = Icons.Filled.ArrowBack,
+        ) { onBackButtonClick() }
+        ScoreBox(
+            modifier = Modifier
+                .padding(16.dp)
+                .constrainAs(currentScoreRef) {
+                    if (isPortrait) {
+                        end.linkTo(bestScoreRef.start)
+                        top.linkTo(bestScoreRef.top)
+                    } else {
+                        start.linkTo(bestScoreRef.start)
+                        bottom.linkTo(bestScoreRef.top)
+                    }
+                },
+            text = "$currentScore",
+            label = stringResource(R.string.msg_score)
+        )
+        ScoreBox(
+            modifier = Modifier
+                .padding(16.dp)
+                .constrainAs(bestScoreRef) {
+                    if (isPortrait) {
+                        end.linkTo(parent.end)
+                        bottom.linkTo(parent.bottom)
+                    } else {
+                        end.linkTo(parent.end)
+                        bottom.linkTo(parent.bottom)
+                    }
+                },
+            text = "$bestScore",
+            label = stringResource(R.string.msg_best_score)
+        )
     }
 }
 
@@ -212,8 +210,7 @@ private fun ScoreBox(
     }
 }
 
-private fun uatan2(x: Float, y: Float): Float =
-    toDegrees(atan2(y, x).toDouble()).toFloat().let { deg ->
+private fun calcDegree(x: Float, y: Float): Float = (atan2(y, x) * 180 / PI).toFloat().let { deg ->
         if (deg < 0) { deg + 360 }
         else { deg }
     }
