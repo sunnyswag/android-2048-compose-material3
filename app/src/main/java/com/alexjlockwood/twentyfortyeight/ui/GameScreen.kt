@@ -25,8 +25,8 @@ fun GameScreen(
             moveCount = gameViewModel.moveCount,
             isPortrait = orientation == Configuration.ORIENTATION_PORTRAIT,
             onSwipeListener = { direction -> gameViewModel.move(direction) },
-            onAddButtonClick = { shouldShowNewGameDialog = true },
-            onBackButtonClick = { gameViewModel.restore() },
+            onNewGameRequested = { shouldShowNewGameDialog = true },
+            onRestoreGameRequested = { gameViewModel.restore() },
         )
 
         if (gameViewModel.isGameOver) {

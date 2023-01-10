@@ -30,7 +30,7 @@ fun GameGrid(
     gridTileMovements: List<GridTileMovement>,
     moveCount: Int,
 ) {
-    BoxWithConstraints(modifier) {
+    BoxWithConstraints(modifier.wrapContentSize().aspectRatio(1f)) {
         val gridSizePx = with(LocalDensity.current) { min(maxWidth.toPx(), maxHeight.toPx()) }
         val tileMarginPx = with(LocalDensity.current) { 4.dp.toPx() }
         val tileSizePx = ((gridSizePx - tileMarginPx * (GRID_SIZE - 1)) / GRID_SIZE)
@@ -56,7 +56,7 @@ fun GameGrid(
     emptyTileColor: Color = getEmptyTileColor(isSystemInDarkTheme()),
 ) {
     Box(
-        modifier = modifier.drawBehind {
+        modifier.drawBehind {
             // Draw the background empty tiles.
             for (row in 0 until GRID_SIZE) {
                 for (col in 0 until GRID_SIZE) {

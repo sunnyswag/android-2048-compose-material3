@@ -32,8 +32,8 @@ fun GameUi(
     moveCount: Int,
     isPortrait: Boolean,
     onSwipeListener: (direction: Direction) -> Unit,
-    onAddButtonClick: () -> Unit,
-    onBackButtonClick: () -> Unit,
+    onNewGameRequested: () -> Unit,
+    onRestoreGameRequested: () -> Unit,
 ) {
     var swipeAngle by remember { mutableStateOf(0f) }
     ConstraintLayout(
@@ -60,8 +60,6 @@ fun GameUi(
         val (gameGridRef, currentScoreRef, bestScoreRef) = createRefs()
         GameGrid(
             modifier = Modifier
-                .wrapContentSize()
-                .aspectRatio(1f)
                 .padding(16.dp)
                 .constrainAs(gameGridRef) {
                     if (isPortrait) {
@@ -107,7 +105,7 @@ fun GameUi(
                     }
                 },
             imageVector = Icons.Filled.Add,
-        ) { onAddButtonClick() }
+        ) { onNewGameRequested() }
         ActionBox(
             modifier = Modifier
                 .padding(16.dp)
@@ -121,7 +119,7 @@ fun GameUi(
                     }
                 },
             imageVector = Icons.Filled.ArrowBack,
-        ) { onBackButtonClick() }
+        ) { onRestoreGameRequested() }
         ScoreBox(
             modifier = Modifier
                 .padding(16.dp)
