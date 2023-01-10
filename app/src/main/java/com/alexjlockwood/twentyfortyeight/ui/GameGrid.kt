@@ -41,6 +41,7 @@ fun GameGrid(
             moveCount = moveCount,
             tileSizePx = tileSizePx,
             tileOffsetPx = tileOffsetPx,
+            emptyTileColor = MaterialTheme.colorScheme.surfaceVariant,
         )
     }
 }
@@ -52,8 +53,8 @@ fun GameGrid(
     moveCount: Int,
     tileSizePx: Float,
     tileOffsetPx: Float,
+    emptyTileColor: Color = getEmptyTileColor(isSystemInDarkTheme()),
 ) {
-    val emptyTileColor = MaterialTheme.colorScheme.surfaceVariant
     Box(
         modifier = modifier.drawBehind {
             // Draw the background empty tiles.
@@ -155,4 +156,8 @@ private fun getTileColor(num: Int, isDarkTheme: Boolean): Color {
         16384 -> Color(if (isDarkTheme) 0xff512da8 else 0xff9933cc)
         else -> Color.Black
     }
+}
+
+private fun getEmptyTileColor(isDarkTheme: Boolean): Color {
+    return Color(if (isDarkTheme) 0xff444444 else 0xffdddddd)
 }
