@@ -16,6 +16,7 @@ import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.unit.*
 import com.alexjlockwood.twentyfortyeight.domain.GridTileMovement
 import com.alexjlockwood.twentyfortyeight.viewmodel.GRID_SIZE
+import kotlinx.coroutines.launch
 import kotlin.math.*
 
 private val GRID_TILE_RADIUS = 4.dp
@@ -90,61 +91,50 @@ fun GameGrid(
             // starting position, it is critical that we assign each tile a unique ID using
             // the key() function.
             key(toGridTile.tile.id) {
-                GridTileText(
+                val animatedScale = remember { Animatable(fromScale) }
+                val animatedOffset = remember { Animatable(fromOffset, Offset.VectorConverter) }
+                GameTile(
+                    modifier = Modifier
+                        .graphicsLayer(
+                            scaleX = animatedScale.value,
+                            scaleY = animatedScale.value,
+                            translationX = animatedOffset.value.x,
+                            translationY = animatedOffset.value.y,
+                        ),
                     num = toGridTile.tile.num,
-                    size = Dp(tileSizePx / LocalDensity.current.density),
-                    fromScale = fromScale,
-                    fromOffset = fromOffset,
-                    toOffset = toOffset,
-                    moveCount = moveCount,
-                    tileColor = getTileColor(toGridTile.tile.num, isSystemInDarkTheme())
+                    tileSize = Dp(tileSizePx / LocalDensity.current.density),
+                    tileColor = getTileColor(toGridTile.tile.num, isSystemInDarkTheme()),
                 )
+                LaunchedEffect(moveCount) {
+                    launch { animatedScale.animateTo(1f, tween(200, 50)) }
+                    launch { animatedOffset.animateTo(toOffset, tween(100)) }
+                }
             }
         }
     }
 }
 
 @Composable
-private fun GridTileText(
+private fun GameTile(
+    modifier: Modifier = Modifier,
     num: Int,
-    size: Dp,
-    fromScale: Float,
-    fromOffset: Offset,
-    toOffset: Offset,
-    moveCount: Int,
+    tileSize: Dp,
     tileColor: Color = Color.Black,
     textColor: Color = Color.White,
     fontSize: TextUnit = 18.sp,
 ) {
-    val animatedScale = remember { Animatable(fromScale) }
-    val animatedOffset = remember { Animatable(fromOffset, Offset.VectorConverter) }
     Text(
         text = "$num",
-        modifier = Modifier
-            .size(size)
-            .graphicsLayer(
-                scaleX = animatedScale.value,
-                scaleY = animatedScale.value,
-                translationX = animatedOffset.value.x,
-                translationY = animatedOffset.value.y,
-            )
+        modifier = modifier
             .background(
                 color = tileColor,
                 shape = RoundedCornerShape(GRID_TILE_RADIUS),
             )
+            .size(tileSize)
             .wrapContentSize(),
         color = textColor,
         fontSize = fontSize,
     )
-    LaunchedEffect (moveCount) {
-        animatedScale.snapTo(if (moveCount == 0) 1f else fromScale)
-    }
-    LaunchedEffect (moveCount) {
-        animatedScale.animateTo(1f, tween(durationMillis = 200, delayMillis = 50))
-    }
-    LaunchedEffect (moveCount) {
-        animatedOffset.animateTo(toOffset, tween(durationMillis = 100))
-    }
 }
 
 private fun getTileColor(num: Int, isDarkTheme: Boolean): Color {
