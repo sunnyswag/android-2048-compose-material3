@@ -1,7 +1,7 @@
 # android-2048-compose-material3
 
 [![Build/Debug](https://github.com/8cAyqpVKio/android-2048-compose-material3/actions/workflows/build_debug_apk.yml/badge.svg)](
-https://github.com/8cAyqpVKio/android-2048-compose-material3/actions/workflows/debug.yml)
+https://github.com/8cAyqpVKio/android-2048-compose-material3/actions/workflows/build_debug_apk.yml)
 [![Build/Release](https://github.com/8cAyqpVKio/android-2048-compose-material3/actions/workflows/build_release_apk.yml/badge.svg)](
 https://github.com/8cAyqpVKio/android-2048-compose-material3/actions/workflows/build_release_apk.yml)
 
