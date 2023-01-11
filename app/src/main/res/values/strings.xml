@@ -6,4 +6,6 @@
     <string name="msg_game_over_body">Start a new game?</string>
     <string name="msg_score">Score</string>
     <string name="msg_best_score">Best</string>
+    <string name="msg_ok">OK</string>
+    <string name="msg_cancel">Cancel</string>
 </resources>

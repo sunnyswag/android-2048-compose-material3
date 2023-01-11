@@ -34,9 +34,7 @@ fun GameScreen(
                 title = stringResource(R.string.msg_game_over),
                 message = stringResource(R.string.msg_game_over_body),
                 onConfirmListener = { gameViewModel.startNewGame() },
-                onDismissListener = {
-                    // TODO: allow user to dismiss the dialog so they can take a screenshot
-                },
+                onDismissListener = { gameViewModel.restore() },
             )
         } else if (shouldShowNewGameDialog) {
             GameDialog(
@@ -46,9 +44,7 @@ fun GameScreen(
                     gameViewModel.startNewGame()
                     shouldShowNewGameDialog = false
                 },
-                onDismissListener = {
-                    shouldShowNewGameDialog = false
-                },
+                onDismissListener = { shouldShowNewGameDialog = false },
             )
         }
     }
