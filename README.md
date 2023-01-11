@@ -9,4 +9,6 @@ A simple 2048 app written with 100% Jetpack Compose forked from [alexjlockwood/a
 
 The main focus of this project is migration to Material Design 3 and updating dependencies.
 
+You can get lastest apk from [Github Actions/Build Release APK](https://github.com/8cAyqpVKio/android-2048-compose-material3/actions/workflows/build_release_apk.yml) (need github account).
+
 ![Screen capture of app](art/twenty-forty-eight.gif)
