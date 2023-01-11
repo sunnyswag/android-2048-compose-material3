@@ -60,7 +60,6 @@ fun GameUi(
         val (gameGridRef, currentScoreRef, bestScoreRef) = createRefs()
         GameGrid(
             modifier = Modifier
-                .padding(16.dp)
                 .constrainAs(gameGridRef) {
                     if (isPortrait) {
                         start.linkTo(parent.start)
@@ -75,13 +74,13 @@ fun GameUi(
                     }
                     width = Dimension.fillToConstraints
                     height = Dimension.fillToConstraints
-                },
+                }
+                .padding(16.dp),
             gridTileMovements = gridTileMovements,
             moveCount = moveCount,
         )
         TitleBox(
             modifier = Modifier
-                .padding(16.dp)
                 .constrainAs(titleRef) {
                     if (isPortrait) {
                         start.linkTo(parent.start)
@@ -91,10 +90,10 @@ fun GameUi(
                         top.linkTo(parent.top)
                     }
                 }
+                .padding(32.dp),
         )
         ActionBox(
             modifier = Modifier
-                .padding(16.dp)
                 .constrainAs(actionAddRef) {
                     if (isPortrait) {
                         end.linkTo(parent.end)
@@ -103,12 +102,12 @@ fun GameUi(
                         bottom.linkTo(parent.bottom)
                         end.linkTo(titleRef.end)
                     }
-                },
+                }
+                .padding(16.dp),
             imageVector = Icons.Filled.Add,
         ) { onNewGameRequested() }
         ActionBox(
             modifier = Modifier
-                .padding(16.dp)
                 .constrainAs(actionBackRef) {
                     if (isPortrait) {
                         end.linkTo(actionAddRef.start)
@@ -117,12 +116,12 @@ fun GameUi(
                         bottom.linkTo(actionAddRef.top)
                         end.linkTo(actionAddRef.end)
                     }
-                },
+                }
+                .padding(16.dp),
             imageVector = Icons.Filled.ArrowBack,
         ) { onRestoreGameRequested() }
         ScoreBox(
             modifier = Modifier
-                .padding(16.dp)
                 .constrainAs(currentScoreRef) {
                     if (isPortrait) {
                         end.linkTo(bestScoreRef.start)
@@ -131,13 +130,13 @@ fun GameUi(
                         start.linkTo(bestScoreRef.start)
                         bottom.linkTo(bestScoreRef.top)
                     }
-                },
+                }
+                .padding(32.dp),
             text = "$currentScore",
             label = stringResource(R.string.msg_score)
         )
         ScoreBox(
             modifier = Modifier
-                .padding(16.dp)
                 .constrainAs(bestScoreRef) {
                     if (isPortrait) {
                         end.linkTo(parent.end)
@@ -146,7 +145,8 @@ fun GameUi(
                         end.linkTo(parent.end)
                         bottom.linkTo(parent.bottom)
                     }
-                },
+                }
+                .padding(32.dp),
             text = "$bestScore",
             label = stringResource(R.string.msg_best_score)
         )
@@ -159,7 +159,7 @@ private fun TitleBox(
     text: String = stringResource(R.string.app_name),
     FontSize: TextUnit = 32.sp,
 ) {
-    Column(modifier.padding(16.dp)) {
+    Column(modifier) {
         Text(
             text = text,
             fontSize = FontSize,
@@ -175,9 +175,9 @@ private fun ActionBox(
     imageVector: ImageVector,
     onClick: () -> Unit,
 ) {
-    Card(modifier.clickable { onClick() }) {
+    Card(modifier) {
         Icon(
-            modifier = Modifier.padding(16.dp),
+            modifier = Modifier.clickable { onClick() }.padding(16.dp),
             imageVector = imageVector,
             tint = MaterialTheme.colorScheme.secondary,
             contentDescription = ""
@@ -192,7 +192,7 @@ private fun ScoreBox(
     label: String,
     minFontSize: TextUnit = 16.sp
 ) {
-    Column(modifier.padding(16.dp)) {
+    Column(modifier) {
         Text(
             text = text,
             fontSize = minFontSize * 2,
