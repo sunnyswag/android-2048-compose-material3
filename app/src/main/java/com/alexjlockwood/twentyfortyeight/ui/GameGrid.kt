@@ -47,7 +47,7 @@ fun GameGrid(
 }
 
 @Composable
-fun GameGrid(
+private fun GameGrid(
     modifier: Modifier = Modifier,
     gridTileMovements: List<GridTileMovement>,
     moveCount: Int,
