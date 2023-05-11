@@ -22,3 +22,9 @@
 
 # Repackage classes into the top-level.
 -repackageclasses
+
+# GSON
+# https://r8.googlesource.com/r8/+/refs/heads/master/compatibility-faq.md#troubleshooting-gson-gson
+-keepattributes Signature
+-keep class com.google.gson.reflect.TypeToken { *; }
+-keep class * extends com.google.gson.reflect.TypeToken
